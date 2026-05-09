@@ -1,219 +1,164 @@
-import javax.swing.*;
-import java.awt.event.*;
-import java.util.*;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Scanner;
 
+// Class for Expense
 class Expense {
+
     String category;
     double amount;
     String date;
 
+    // Constructor
     Expense(String category, double amount, String date) {
         this.category = category;
         this.amount = amount;
         this.date = date;
     }
+
+    // Method to display expense
+    void displayExpense() {
+        System.out.println(category + "\t₹" + amount + "\t" + date);
+    }
 }
 
-public class ExpenseTrackerFinal {
-
-    static ArrayList<Expense> list = new ArrayList<>();
-    static DefaultListModel<String> model = new DefaultListModel<>();
+// Main Class
+public class ExpenseTrackerSystem {
 
     public static void main(String[] args) {
 
-        JFrame f = new JFrame("Expense Tracker");
+        Scanner sc = new Scanner(System.in);
 
-        // Labels
-        JLabel l1 = new JLabel("Category:");
-        l1.setBounds(30, 30, 100, 30);
+        // ArrayList to store expenses
+        ArrayList<Expense> expenses = new ArrayList<>();
 
-        JLabel l2 = new JLabel("Amount:");
-        l2.setBounds(30, 70, 100, 30);
+        int choice;
 
-        JLabel l3 = new JLabel("Date:");
-        l3.setBounds(30, 110, 100, 30);
+        do {
 
-        // Total Label
-        JLabel totalLabel = new JLabel("Total Expense: ₹0");
-        totalLabel.setBounds(300, 290, 250, 30);
+            System.out.println("\n===== EXPENSE TRACKER SYSTEM =====");
+            System.out.println("1. Add Expense");
+            System.out.println("2. View Expenses");
+            System.out.println("3. Calculate Total Expense");
+            System.out.println("4. Search Expense by Category");
+            System.out.println("5. Delete Expense");
+            System.out.println("6. Exit");
 
-        // Input Fields
-        JTextField categoryField = new JTextField();
-        categoryField.setBounds(120, 30, 150, 30);
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+            sc.nextLine();
 
-        JTextField amountField = new JTextField();
-        amountField.setBounds(120, 70, 150, 30);
+            switch (choice) {
 
-        // Date Picker
-        JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
-        dateSpinner.setBounds(120, 110, 150, 30);
-        JSpinner.DateEditor editor = new JSpinner.DateEditor(dateSpinner, "dd-MM-yyyy");
-        dateSpinner.setEditor(editor);
+                // ADD EXPENSE
+                case 1:
 
-        // List Display
-        JList<String> expenseList = new JList<>(model);
-        JScrollPane scroll = new JScrollPane(expenseList);
-        scroll.setBounds(300, 30, 250, 250);
+                    System.out.print("Enter Category: ");
+                    String category = sc.nextLine();
 
-        // Buttons
-        JButton addBtn = new JButton("Add");
-        addBtn.setBounds(30, 160, 80, 30);
+                    System.out.print("Enter Amount: ");
+                    double amount = sc.nextDouble();
+                    sc.nextLine();
 
-        JButton updateBtn = new JButton("Update");
-        updateBtn.setBounds(120, 160, 80, 30);
+                    System.out.print("Enter Date (dd-mm-yyyy): ");
+                    String date = sc.nextLine();
 
-        JButton deleteBtn = new JButton("Delete");
-        deleteBtn.setBounds(210, 160, 80, 30);
+                    Expense e = new Expense(category, amount, date);
 
-        JButton clearBtn = new JButton("Clear");
-        clearBtn.setBounds(30, 210, 80, 30);
+                    expenses.add(e);
 
-        JButton totalBtn = new JButton("Show Total");
-        totalBtn.setBounds(120, 210, 120, 30);
+                    System.out.println("Expense Added Successfully!");
+                    break;
 
-        // Function to calculate total
-        Runnable updateTotal = () -> {
-            double total = 0;
+                // VIEW EXPENSES
+                case 2:
 
-            for (Expense ex : list) {
-                total += ex.amount;
+                    if (expenses.size() == 0) {
+
+                        System.out.println("No Expenses Found!");
+
+                    } else {
+
+                        System.out.println("\nCategory\tAmount\tDate");
+                        System.out.println("--------------------------------");
+
+                        for (Expense ex : expenses) {
+                            ex.displayExpense();
+                        }
+                    }
+
+                    break;
+
+                // TOTAL EXPENSE
+                case 3:
+
+                    double total = 0;
+
+                    for (Expense ex : expenses) {
+                        total = total + ex.amount;
+                    }
+
+                    System.out.println("Total Expense = ₹" + total);
+
+                    break;
+
+                // SEARCH CATEGORY
+                case 4:
+
+                    System.out.print("Enter Category to Search: ");
+                    String search = sc.nextLine();
+
+                    boolean found = false;
+
+                    for (Expense ex : expenses) {
+
+                        if (ex.category.equalsIgnoreCase(search)) {
+
+                            ex.displayExpense();
+                            found = true;
+                        }
+                    }
+
+                    if (!found) {
+                        System.out.println("Expense Not Found!");
+                    }
+
+                    break;
+
+                // DELETE EXPENSE
+                case 5:
+
+                    System.out.print("Enter Expense Number to Delete: ");
+
+                    int index = sc.nextInt();
+
+                    if (index > 0 && index <= expenses.size()) {
+
+                        expenses.remove(index - 1);
+
+                        System.out.println("Expense Deleted Successfully!");
+
+                    } else {
+
+                        System.out.println("Invalid Expense Number!");
+                    }
+
+                    break;
+
+                // EXIT
+                case 6:
+
+                    System.out.println("Thank You for Using Expense Tracker!");
+                    break;
+
+                default:
+
+                    System.out.println("Invalid Choice!");
             }
 
-            totalLabel.setText("Total Expense: ₹" + total);
-        };
+        } while (choice != 6);
 
-        // ADD FUNCTION
-        addBtn.addActionListener(e -> {
-            try {
-                String category = categoryField.getText();
-
-                if(category.isEmpty()) {
-                    JOptionPane.showMessageDialog(f, "Category cannot be empty!");
-                    return;
-                }
-
-                double amount = Double.parseDouble(amountField.getText());
-
-                Date selectedDate = (Date) dateSpinner.getValue();
-                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-                String date = sdf.format(selectedDate);
-
-                Expense ex = new Expense(category, amount, date);
-                list.add(ex);
-
-                model.addElement(category + " | ₹" + amount + " | " + date);
-
-                updateTotal.run();
-
-                JOptionPane.showMessageDialog(f, "Expense Added!");
-
-            } catch(Exception ex) {
-                JOptionPane.showMessageDialog(f, "Enter valid data!");
-            }
-        });
-
-        // LOAD SELECTED ITEM INTO FIELDS
-        expenseList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                int index = expenseList.getSelectedIndex();
-
-                if(index != -1) {
-                    Expense ex = list.get(index);
-
-                    categoryField.setText(ex.category);
-                    amountField.setText(String.valueOf(ex.amount));
-                }
-            }
-        });
-
-        // UPDATE FUNCTION
-        updateBtn.addActionListener(e -> {
-
-            int index = expenseList.getSelectedIndex();
-
-            if(index != -1) {
-                try {
-
-                    String category = categoryField.getText();
-                    double amount = Double.parseDouble(amountField.getText());
-
-                    Date selectedDate = (Date) dateSpinner.getValue();
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-                    String date = sdf.format(selectedDate);
-
-                    list.get(index).category = category;
-                    list.get(index).amount = amount;
-                    list.get(index).date = date;
-
-                    model.set(index, category + " | ₹" + amount + " | " + date);
-
-                    updateTotal.run();
-
-                    JOptionPane.showMessageDialog(f, "Updated Successfully!");
-
-                } catch(Exception ex) {
-                    JOptionPane.showMessageDialog(f, "Invalid Data!");
-                }
-
-            } else {
-                JOptionPane.showMessageDialog(f, "Select an expense first!");
-            }
-        });
-
-        // DELETE FUNCTION
-        deleteBtn.addActionListener(e -> {
-
-            int index = expenseList.getSelectedIndex();
-
-            if(index != -1) {
-
-                list.remove(index);
-                model.remove(index);
-
-                updateTotal.run();
-
-                JOptionPane.showMessageDialog(f, "Deleted!");
-
-            } else {
-                JOptionPane.showMessageDialog(f, "Select an expense first!");
-            }
-        });
-
-        // CLEAR FIELDS
-        clearBtn.addActionListener(e -> {
-            categoryField.setText("");
-            amountField.setText("");
-        });
-
-        // SHOW TOTAL BUTTON
-        totalBtn.addActionListener(e -> {
-            updateTotal.run();
-            JOptionPane.showMessageDialog(f, totalLabel.getText());
-        });
-
-        // Add components
-        f.add(l1);
-        f.add(l2);
-        f.add(l3);
-
-        f.add(categoryField);
-        f.add(amountField);
-        f.add(dateSpinner);
-
-        f.add(addBtn);
-        f.add(updateBtn);
-        f.add(deleteBtn);
-        f.add(clearBtn);
-        f.add(totalBtn);
-
-        f.add(scroll);
-        f.add(totalLabel);
-
-        // Frame settings
-        f.setSize(600, 380);
-        f.setLayout(null);
-        f.setVisible(true);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        sc.close();
     }
 }
+
+
